@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/css/style.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/barecss@1.1.1/css/bare.min.css">
 <link rel="stylesheet" href="./css/main.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3"></script>
@@ -10,6 +11,56 @@
 <title>Consistent Hashing Simulation</title>
 </head>
 <body>
+
+<!-- Instructions -->
+<div class="container">
+<div class="columns is-centered">
+  <div class="column">
+  <div class="v-collapsible-instruction-container v-instruction-container">
+    <div class="v-collapsible is-size-5">Instructions</div>
+    <div class="v-content" style="text-align: left; padding-left: 10%; padding-right: 10%;">
+      <ul style="list-style: disc;">
+        <li>
+          <strong>Interactive Controls:</strong>
+          <ul>
+            <li><strong>Select Experiment:</strong> Dropdown to select the experiment type (number of virtual nodes).</li>
+            <li><strong>Start, Pause, Reset Simulation:</strong> Buttons to control the simulation.</li>
+            <li><strong>Adjust/Reset Parameters:</strong> Buttons to adjust or reset the simulation parameters.</li>
+            <li><strong>Add/Remove Machine Buttons:</strong> Buttons to add/remove a specified, or a random machine.</li>
+            <li><strong>Add/Remove Items Buttons:</strong> Buttons to add/remove a specified number of items (random).</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Simulation metrics:</strong>
+          <ul>
+            <li><strong>Load Distribution:</strong> Bar chart showing the number of items per machine.</li>
+            <li><strong>Items Migrations:</strong> Display of the number of objects migrated upon machine addition/removal.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Parameter Input Fields:</strong>
+          <ul>
+            <li><strong>Initial number of machines (servers):</strong> Specify the initial number of machines in the system.</li>
+            <li><strong>Initial number of items (objects):</strong> Set the initial number of items to be stored in the DHT.</li>
+            <li><strong>Virtual nodes per machine:</strong> Adjust the number of virtual nodes each machine should have.</li>
+            <li><strong>Items to add on click:</strong> Set the number of items to add per click.</li>
+            <li><strong>Items to remove on click:</strong> Specify the number of items to remove per click.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Learning Objectives</strong>
+          <ul>
+            <li>Understand how consistent hashing distributes load among nodes.</li>
+            <li>Observe the impact of virtual nodes on load balance.</li>
+            <li>Compare consistent hashing with naive DHT in terms of load distribution, resilience, and performance.</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  </div>
+</div>
+</div>
 
 <!-- Simulation and Controls -->
 <section class="wide">
@@ -57,7 +108,7 @@
 </section>
 
 <!-- Plots and Parameters -->
-<section class="wide">
+<section class="wide" id="plots-parameters">
 <grid>
   <div id="quiz" hidden>
   <blockquote>
@@ -115,6 +166,8 @@
 </grid>
 </section>
 
+<!-- Load the scripts -->
+<script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
 <script src="./js/main.js"></script>
 </body>
 </html>

@@ -5,6 +5,15 @@ body {
 section.wide {
   margin: 0 8rem;
 }
+@media (max-width: 767px) {
+  section.wide {
+    margin: 1rem;
+  }
+}
+#plots-parameters grid {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
 
 
 /* Simulation environment. */

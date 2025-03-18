@@ -1,0 +1,52 @@
+/* Use the entire viewport. */
+body {
+  margin: 0;
+}
+section.wide {
+  margin: 0 8rem;
+}
+@media (max-width: 767px) {
+  section.wide {
+    margin: 1rem;
+  }
+}
+#plots-parameters grid {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+
+/* Simulation environment. */
+#simulation > canvas {
+  width: 100%;
+  /* height: 26rem; */
+}
+
+
+/** Controls. */
+#buttons form {
+  margin-top: 6rem;
+}
+#buttons select {
+  margin-top: 0;
+}
+
+
+/** Quiz. */
+#quiz {
+  background: #f9f9f9;
+}
+#quiz label {
+  font-weight: bold;
+}
+
+
+/* Plot details. */
+#items-plot, #migrations-plot {
+  max-width: 100%;
+  max-height: 40rem;
+  margin: 2rem 0;
+}
+#plots {
+  margin: 4rem 0;
+}

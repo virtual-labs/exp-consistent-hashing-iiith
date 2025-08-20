@@ -1,52 +1,658 @@
-/* Use the entire viewport. */
+/* Modern Consistent Hashing Lab Styles */
+
 body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #1a202c;
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
-section.wide {
-  margin: 0 8rem;
+
+.app-container {
+  max-width: 1800px;
+  margin: 15px auto;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+  min-height: calc(100vh - 30px);
 }
-@media (max-width: 767px) {
-  section.wide {
-    margin: 1rem;
+
+/* Header Styling */
+header {
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+}
+
+/* Compact spacing */
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1rem;
+}
+
+/* Glass Morphism Effects */
+.glass-morphism {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  backdrop-filter: blur(10px);
+  border: none;
+  box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+  color: white;
+  border-radius: 15px;
+}
+
+.dark-glass {
+  background: white;
+  backdrop-filter: blur(6px);
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 15px;
+}
+
+/* Text Gradients */
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff, #f3f4f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Floating Cards */
+.floating-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+.floating-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 60px 0 rgba(0,0,0,0.15);
+}
+
+/* Modern Button Styles */
+.neu-button {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+}
+
+.neu-button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.neu-button-secondary {
+  background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+}
+
+.neu-button-danger {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.neu-button.purple {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+}
+
+.neu-button.green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.neu-button.blue {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+}
+
+.neu-button.red {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.neu-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(49, 130, 206, 0.3);
+}
+
+.neu-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px 0 rgba(49, 130, 206, 0.2);
+}
+
+/* Small Floating Button */
+.neu-button-small {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 4px 15px rgba(49, 130, 206, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(49, 130, 206, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neu-button-small:hover {
+  box-shadow: 0 8px 25px rgba(49, 130, 206, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Pill Button for Instructions */
+.neu-button-pill {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 4px 20px rgba(49, 130, 206, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(49, 130, 206, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.neu-button-pill:hover {
+  background: linear-gradient(145deg, #eff6ff, #dbeafe);
+  box-shadow: 0 6px 30px rgba(49, 130, 206, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px) scale(1.03);
+  border-color: rgba(49, 130, 206, 0.25);
+}
+
+/* Instructions Modal Styling */
+.instructions-modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
-#plots-parameters grid {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+
+.instruction-card {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 1px solid rgba(49, 130, 206, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+.instruction-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(49, 130, 206, 0.1);
+}
 
-/* Simulation environment. */
-#simulation > canvas {
+.instruction-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.instruction-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.instruction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.instruction-list li {
+  padding: 8px 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-bottom: 1px solid rgba(49, 130, 206, 0.05);
+}
+
+.instruction-list li:last-child {
+  border-bottom: none;
+}
+
+.instruction-list li strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+/* Panel Titles */
+.panel-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-section {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.control-section h3 {
+  color: #2d3748;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Form Elements */
+input, select {
   width: 100%;
-  /* height: 26rem; */
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  color: #2d3748;
+  transition: all 0.2s ease;
 }
 
-
-/** Controls. */
-#buttons form {
-  margin-top: 6rem;
-}
-#buttons select {
-  margin-top: 0;
+input:focus, select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
 }
 
-
-/** Quiz. */
-#quiz {
-  background: #f9f9f9;
+/* Canvas Styling */
+#arena {
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.08);
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%);
+  /* max-height: 400px; */
 }
-#quiz label {
-  font-weight: bold;
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .floating-card {
+    border-radius: 1rem;
+    padding: 1rem !important;
+  }
+  
+  .panel-title {
+    font-size: 1.1rem;
+  }
+  
+  .neu-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    min-height: 2rem;
+  }
+
+  #arena {
+    max-height: 300px;
+  }
 }
 
+@media (max-width: 768px) {
+  .max-w-7xl {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .floating-card {
+    padding: 0.75rem !important;
+    border-radius: 0.75rem;
+  }
+  
+  .grid {
+    gap: 0.5rem !important;
+  }
+  
+  .neu-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    min-height: 1.8rem;
+  }
+  
+  #arena {
+    max-height: 250px;
+  }
 
-/* Plot details. */
+  body {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .panel-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Compact layout improvements */
+.space-y-3 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.75rem;
+}
+
+.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.5rem;
+}
+
+/* Chart containers */
 #items-plot, #migrations-plot {
-  max-width: 100%;
-  max-height: 40rem;
-  margin: 2rem 0;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0.5rem;
 }
-#plots {
-  margin: 4rem 0;
+
+/* Force chart responsiveness */
+.chart-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+}
+
+/* Ensure Chart.js container is responsive */
+.tab-content canvas {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Quiz Styling */
+#quiz {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading States */
+.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status Indicators */
+.status-running {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.status-paused {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.status-stopped {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+/* New Layout Styles */
+.main-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  margin-bottom: 1rem;
+  height: calc(100vh - 200px); /* Use viewport height minus header/controls space */
+}
+
+.visualization-container,
+.metrics-container {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.visualization-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 15px;
+  padding: 20px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px; /* Ensure minimum size */
+}
+
+.visualization-canvas {
+  display: block;
+  border-radius: 0.75rem;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  background: rgba(49, 130, 206, 0.05);
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.tab-button:hover {
+  background: rgba(49, 130, 206, 0.1);
+  color: #3182ce;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #3182ce 0%, #4299e1 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(49, 130, 206, 0.2);
+}
+
+/* Tab Content */
+.tab-content-container {
+  flex: 1;
+  position: relative;
+}
+
+.tab-content {
+  display: none;
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 15px;
+  border: none;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-content.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .app-container {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+  
+  .main-content-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 10px;
+  }
+  
+  .visualization-container,
+  .metrics-container {
+    min-height: 400px;
+  }
+  
+  .visualization-content {
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .main-content-grid {
+    gap: 8px;
+  }
+  
+  .visualization-container,
+  .metrics-container {
+    min-height: 350px;
+    padding: 15px;
+  }
+  
+  .visualization-content {
+    min-height: 280px;
+  }
+  
+  .tab-button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Chart.js specific fixes */
+.chartjs-render-monitor {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Ensure Chart.js respects container size */
+.tab-content .chartjs-size-monitor {
+  position: absolute !important;
+  left: 0px !important;
+  top: 0px !important;
+  right: 0px !important;
+  bottom: 0px !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  z-index: -1 !important;
 }

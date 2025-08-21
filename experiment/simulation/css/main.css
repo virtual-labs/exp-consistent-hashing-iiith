@@ -10,6 +10,7 @@ body {
   overflow-x: hidden;
 }
 
+/* Ensure the gray background always expands to fit its children */
 .app-container {
   max-width: 1800px;
   margin: 15px auto;
@@ -18,7 +19,10 @@ body {
   backdrop-filter: blur(10px);
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-  min-height: calc(100vh - 30px);
+  min-height: 0;
+  height: auto !important;
+  overflow: visible !important;
+  display: block;
 }
 
 /* Header Styling */
@@ -484,7 +488,8 @@ input:focus, select:focus {
   margin: 0 auto;
   padding: 0;
   margin-bottom: 1rem;
-  height: calc(100vh - 200px); /* Use viewport height minus header/controls space */
+  height: auto;
+  min-height: 0;
 }
 
 .visualization-container,
@@ -593,12 +598,17 @@ input:focus, select:focus {
     margin: 10px;
     padding: 10px;
     border-radius: 15px;
+    min-height: 0;
+    height: auto !important;
+    overflow: visible !important;
   }
   
   .main-content-grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     gap: 10px;
+    height: auto;
+    min-height: 0;
   }
   
   .visualization-container,
@@ -616,10 +626,15 @@ input:focus, select:focus {
     margin: 5px;
     padding: 10px;
     border-radius: 10px;
+    min-height: 0;
+    height: auto !important;
+    overflow: visible !important;
   }
   
   .main-content-grid {
     gap: 8px;
+    height: auto;
+    min-height: 0;
   }
   
   .visualization-container,

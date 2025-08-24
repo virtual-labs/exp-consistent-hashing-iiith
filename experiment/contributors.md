@@ -11,5 +11,6 @@
 
 | SNo. | Name | Email | Institute | GitHub ID |
 | :---: | :---: | :---: | :---: | :---: |
-| 2 | Subhajit Sahu | subhajit.sahu@research.iiit.ac.in | IIIT Hyderabad | wolfram77 |
-| 3 | N. Mahen | mahen.n@research.iiit.ac.in | IIIT Hyderabad | tempmn |
+| 1 | Subhajit Sahu | subhajit.sahu@research.iiit.ac.in | IIIT Hyderabad | wolfram77 |
+| 2 | N. Mahen | mahen.n@research.iiit.ac.in | IIIT Hyderabad | tempmn |
+| 3 | Sai Teja | sai.teja@research.iiit.ac.in | IIIT Hyderabad | saitejaMaryala |

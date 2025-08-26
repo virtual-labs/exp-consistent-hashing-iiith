@@ -13,4 +13,4 @@
 | :---: | :---: | :---: | :---: | :---: |
 | 1 | Subhajit Sahu | subhajit.sahu@research.iiit.ac.in | IIIT Hyderabad | wolfram77 |
 | 2 | N. Mahen | mahen.n@research.iiit.ac.in | IIIT Hyderabad | tempmn |
-| 3 | Sai Teja | sai.teja@research.iiit.ac.in | IIIT Hyderabad | saitejaMaryala |
+| 3 | Sai Teja | saiteja.maryala@research.iiit.ac.in | IIIT Hyderabad | saitejaMaryala |

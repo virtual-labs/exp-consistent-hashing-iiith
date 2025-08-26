@@ -1,5 +1,3 @@
-### References
-
 - [Distributed hash table](https://en.wikipedia.org/wiki/Distributed_hash_table)
 - [Consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing)
 - [Consistent hashing by Michael Nielsen](https://michaelnielsen.org/blog/consistent-hashing/)

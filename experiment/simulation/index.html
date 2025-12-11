@@ -50,6 +50,14 @@
     <span>Instructions</span>
   </button>
 
+  <!-- Migrations History Button (Floating) -->
+  <button id="migrationsBtn" class="fixed top-24 right-6 z-50 neu-button-pill bg-success hover:bg-successLight text-white px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 flex items-center gap-2 font-medium">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+    </svg>
+    <span>Migrations (<span id="migrationCount">0</span>)</span>
+  </button>
+
   <!-- Instructions Modal -->
   <div id="instructionsModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm modal-backdrop">
     <div class="flex items-center justify-center min-h-screen p-4 modal-backdrop">
@@ -132,6 +140,45 @@
                 <li>Compare consistent hashing with naive DHT in terms of load distribution, resilience, and performance.</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Migrations History Modal -->
+  <div id="migrationsModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4 modal-backdrop">
+      <div class="instructions-modal-content bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[80vh] overflow-y-auto border border-green-100" onclick="event.stopPropagation();">
+        <div class="sticky top-0 bg-gradient-to-r from-success to-successLight text-white p-6 rounded-t-2xl">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="bg-white bg-opacity-20 p-2 rounded-full">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold">Migration History</h2>
+                <p class="text-green-100 text-sm">Track all item migrations between machines</p>
+              </div>
+            </div>
+            <button id="closeMigrationsModal" class="text-white hover:text-red-200 transition-colors p-3 hover:bg-error hover:bg-opacity-20 rounded-full z-10 relative bg-error bg-opacity-20">
+              <svg class="w-7 h-7" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-8">
+          <div class="mb-4 flex justify-between items-center">
+            <p class="text-gray-600">Total Migrations: <span id="totalMigrations" class="font-bold text-primary">0</span></p>
+            <button id="clearMigrations" onclick="clearMigrationHistory()" class="px-4 py-2 bg-error hover:bg-errorLight text-white rounded-lg transition-all duration-200 text-sm font-medium">
+              Clear History
+            </button>
+          </div>
+          <div id="migrationsList" class="space-y-2 max-h-96 overflow-y-auto">
+            <p class="text-gray-500 text-center py-8">No migrations recorded yet. Start the simulation to see migrations.</p>
           </div>
         </div>
       </div>

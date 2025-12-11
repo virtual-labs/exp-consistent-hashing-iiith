@@ -818,6 +818,12 @@ var hashringMigrations = new Map();
 var naivering = new NaiveHashRing(handleNaiveringMigration);
 var naiveringMigrations = new Map();
 
+/** Array to track all migrations with details */
+var migrationHistory = [];
+
+/** Current action identifier for grouping migrations */
+var currentMigrationAction = null;
+
 /** Plot of items vs machines. */
 var itemsPlot = null;
 
@@ -940,14 +946,24 @@ function main() {
     
     // Close modal with Escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !instructionsModal.classList.contains('hidden')) {
-        instructionsModal.classList.add('hidden');
-        console.log('Modal closed via Escape key');
+      if (e.key === 'Escape') {
+        if (!instructionsModal.classList.contains('hidden')) {
+          instructionsModal.classList.add('hidden');
+          console.log('Instructions modal closed via Escape key');
+        }
+        const migrationsModal = document.getElementById('migrationsModal');
+        if (migrationsModal && !migrationsModal.classList.contains('hidden')) {
+          migrationsModal.classList.add('hidden');
+          console.log('Migrations modal closed via Escape key');
+        }
       }
     });
   } else {
     console.error('Modal elements not found:', {instructionsBtn, instructionsModal, closeModal});
   }
+  
+  // Setup migration modal
+  setupMigrationModal();
   
   setTimeout(stopSimulation, 500);  // Let some rendering happen
   requestAnimationFrame(simulationLoop);
@@ -997,6 +1013,19 @@ function handleHashringMigration(o, lname, mname) {
   mname  = baseMachineName(mname);
   hm.set(lname, (hm.get(lname) || 0) + 1);
   hm.set(mname, (hm.get(mname) || 0) + 1);
+  
+  // Track detailed migration information
+  migrationHistory.push({
+    item: o.name,
+    from: lname,
+    to: mname,
+    timestamp: new Date().toLocaleTimeString(),
+    type: 'consistent',
+    action: currentMigrationAction || { id: Date.now(), description: 'Unknown action', timestamp: new Date().toLocaleTimeString() }
+  });
+  
+  // Update the migration count display
+  updateMigrationCount();
 }
 
 
@@ -1005,6 +1034,19 @@ function handleNaiveringMigration(o, lname, mname) {
   var nm = naiveringMigrations;
   nm.set(lname, (nm.get(lname) || 0) + 1);
   nm.set(mname, (nm.get(mname) || 0) + 1);
+  
+  // Track detailed migration information
+  migrationHistory.push({
+    item: o.name,
+    from: lname,
+    to: mname,
+    timestamp: new Date().toLocaleTimeString(),
+    type: 'naive',
+    action: currentMigrationAction || { id: Date.now(), description: 'Unknown action', timestamp: new Date().toLocaleTimeString() }
+  });
+  
+  // Update the migration count display
+  updateMigrationCount();
 }
 
 
@@ -1085,12 +1127,22 @@ function onAddMachine() {
     var name = 'm' + s.lastMachine; 
     s.lastMachine++;
     
+    // Set migration action context
+    currentMigrationAction = {
+      id: Date.now() + j,
+      description: `Machine ${name} added`,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
     // Add virtual nodes for this machine
     for (var i = 0; i < p.virtualNodes; ++i) {
       h.addMachine(name + '.' + i);
     }
     n.addMachine(name);
   }
+  
+  // Clear action context after animation completes (itemUpdateTime is ~20 seconds)
+  setTimeout(() => { currentMigrationAction = null; }, 25000);
   
   playAudio(SYNCHRONIZE_AUDIO);
 }
@@ -1114,12 +1166,22 @@ function onRemoveMachine() {
     
     var name = baseMachineName(randomMachine.name);
     
+    // Set migration action context
+    currentMigrationAction = {
+      id: Date.now() + j,
+      description: `Machine ${name} removed`,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
     // Remove virtual nodes for this machine
     for (var i = 0; i < p.virtualNodes; ++i) {
       h.removeMachine(name + '.' + i);
     }
     n.removeMachine(name);
   }
+  
+  // Clear action context after animation completes (itemUpdateTime is ~20 seconds)
+  setTimeout(() => { currentMigrationAction = null; }, 25000);
   
   playAudio(SYNCHRONIZE_AUDIO);
 }
@@ -1223,6 +1285,9 @@ function resetSimulation() {
   nm.clear();
   h.reset();
   n.reset();
+  // Clear migration history when resetting
+  migrationHistory.length = 0;
+  updateMigrationCount();
 }
 
 
@@ -1601,6 +1666,111 @@ function mod(x, y) {
 function identity(x) {
   return x;
 
+}
+
+
+// MIGRATION HISTORY FUNCTIONS
+// ----------------------------
+
+/** Update the migration count badge */
+function updateMigrationCount() {
+  const countElement = document.getElementById('migrationCount');
+  if (countElement) {
+    countElement.textContent = migrationHistory.length;
+  }
+}
+
+/** Render the migrations list in the modal */
+function renderMigrationsList() {
+  const migrationsList = document.getElementById('migrationsList');
+  const totalMigrations = document.getElementById('totalMigrations');
+  
+  if (!migrationsList || !totalMigrations) return;
+  
+  totalMigrations.textContent = migrationHistory.length;
+  
+  if (migrationHistory.length === 0) {
+    migrationsList.innerHTML = '<p class="text-gray-500 text-center py-8">No migrations recorded yet. Start the simulation to see migrations.</p>';
+    return;
+  }
+  
+  // Group migrations by action
+  const groupedMigrations = {};
+  migrationHistory.forEach(migration => {
+    const actionId = migration.action.id;
+    if (!groupedMigrations[actionId]) {
+      groupedMigrations[actionId] = {
+        action: migration.action,
+        migrations: []
+      };
+    }
+    groupedMigrations[actionId].migrations.push(migration);
+  });
+  
+  // Render grouped migrations in reverse order (newest first)
+  const actionGroups = Object.values(groupedMigrations).reverse();
+  migrationsList.innerHTML = actionGroups.map(group => `
+    <div class="migration-action-group mb-4 bg-white border border-gray-200">
+      <div class="migration-action-header bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-800">${group.action.description}</span>
+          <span class="text-xs text-gray-500">${group.action.timestamp} • ${group.migrations.length} migration${group.migrations.length !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+      <div class="migration-items-list p-2 space-y-1">
+        ${group.migrations.map(migration => `
+          <div class="migration-item-compact flex items-center justify-between p-2 bg-white rounded hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-2 flex-1">
+              <span class="migration-item-name">${migration.item}</span>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="migration-machine">${migration.from}</span>
+                <svg class="w-3 h-3 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+                <span class="migration-machine">${migration.to}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/** Clear migration history */
+function clearMigrationHistory() {
+  if (confirm('Are you sure you want to clear all migration history?')) {
+    migrationHistory.length = 0;
+    updateMigrationCount();
+    renderMigrationsList();
+  }
+}
+
+/** Setup migration modal event listeners */
+function setupMigrationModal() {
+  const migrationsBtn = document.getElementById('migrationsBtn');
+  const migrationsModal = document.getElementById('migrationsModal');
+  const closeMigrationsModal = document.getElementById('closeMigrationsModal');
+  
+  if (!migrationsBtn || !migrationsModal || !closeMigrationsModal) return;
+  
+  // Open modal
+  migrationsBtn.addEventListener('click', () => {
+    migrationsModal.classList.remove('hidden');
+    renderMigrationsList();
+  });
+  
+  // Close modal
+  closeMigrationsModal.addEventListener('click', () => {
+    migrationsModal.classList.add('hidden');
+  });
+  
+  // Close modal when clicking backdrop
+  migrationsModal.addEventListener('click', (e) => {
+    if (e.target === migrationsModal || e.target.classList.contains('modal-backdrop')) {
+      migrationsModal.classList.add('hidden');
+    }
+  });
 }
 
 

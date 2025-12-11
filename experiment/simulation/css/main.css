@@ -1,4 +1,4 @@
-/* Modern Consistent Hashing Lab Styles */
+﻿/* Modern Consistent Hashing Lab Styles */
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -671,3 +671,112 @@ input:focus, select:focus {
   visibility: hidden !important;
   z-index: -1 !important;
 }
+/* Migration History Styles */
+.migration-item {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid #10b981;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.migration-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.migration-item-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.migration-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.migration-badge.consistent {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.migration-badge.naive {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.migration-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.migration-machine {
+  font-weight: 600;
+  color: #3b82f6;
+  padding: 2px 8px;
+  background: white;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.migration-timestamp {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.migration-item-name {
+  font-weight: 500;
+  color: #059669;
+  background: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Grouped Migration Styles */
+.migration-action-group {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.migration-action-header {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.migration-items-list {
+  background: #f9fafb;
+}
+
+.migration-item-compact {
+  font-size: 0.875rem;
+}
+
+.migration-item-compact .migration-item-name {
+  font-size: 0.875rem;
+  padding: 2px 6px;
+}
+
+.migration-item-compact .migration-machine {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+}
+

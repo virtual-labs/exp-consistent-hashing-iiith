@@ -50,13 +50,7 @@
     <span>Instructions</span>
   </button>
 
-  <!-- Migrations History Button (Floating) -->
-  <button id="migrationsBtn" class="fixed top-24 right-6 z-50 neu-button-pill bg-success hover:bg-successLight text-white px-6 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 flex items-center gap-2 font-medium">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-    </svg>
-    <span>Migrations (<span id="migrationCount">0</span>)</span>
-  </button>
+
 
   <!-- Instructions Modal -->
   <div id="instructionsModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm modal-backdrop">
@@ -315,7 +309,16 @@
       
       <!-- Left Div - Hash Ring Visualization -->
       <div class="visualization-container floating-card">
-        <h2 class="panel-title mb-3 text-primary">🔄 Hash Ring Visualization</h2>
+        <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+          <h2 class="panel-title text-primary mb-0">🔄 Hash Ring Visualization</h2>
+          <button id="migrationsBtn" style="background-color: #3182ce !important; color: white !important;" class="px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-md transition-all duration-300 hover:opacity-90 hover:scale-105 flex items-center gap-2 text-sm font-medium">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            <span class="hidden sm:inline">Migrations (<span id="migrationCount">0</span>)</span>
+            <span class="sm:hidden">(<span id="migrationCountMobile">0</span>)</span>
+          </button>
+        </div>
         <div class="visualization-content">
           <canvas id="arena" class="visualization-canvas"></canvas>
         </div>

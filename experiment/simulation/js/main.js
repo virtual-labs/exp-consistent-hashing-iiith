@@ -1675,8 +1675,12 @@ function identity(x) {
 /** Update the migration count badge */
 function updateMigrationCount() {
   const countElement = document.getElementById('migrationCount');
+  const countElementMobile = document.getElementById('migrationCountMobile');
   if (countElement) {
     countElement.textContent = migrationHistory.length;
+  }
+  if (countElementMobile) {
+    countElementMobile.textContent = migrationHistory.length;
   }
 }
 

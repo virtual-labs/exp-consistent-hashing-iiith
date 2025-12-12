@@ -1507,28 +1507,82 @@ function drawItemsPlot() {
   }
   var labels  = [...counts.keys()];
   var hvalues = [...counts.values()];
-  itemsPlot = itemsPlot || new Chart(ITEMS_PLOT, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Consistent Hash',
-        data: hvalues,
-        backgroundColor: 'rgba(255, 132, 132, 1)',
-        borderColor: 'rgba(255, 132, 132, 1)',
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: {title: {display: true, text: 'Machine'}},
-        y: {title: {display: true, text: 'Item count'}, beginAtZero: true},
+  
+  // Calculate ideal items per machine (total items / number of machines)
+  var totalItems = hvalues.reduce((sum, val) => sum + val, 0);
+  var idealItemsPerMachine = labels.length > 0 ? totalItems / labels.length : 0;
+  
+  if (!itemsPlot) {
+    // Plugin to draw horizontal ideal line
+    const idealLinePlugin = {
+      id: 'idealLine',
+      afterDatasetsDraw: (chart) => {
+        const ctx = chart.ctx;
+        const yAxis = chart.scales.y;
+        const xAxis = chart.scales.x;
+        const ideal = chart.options.plugins.idealValue || 0;
+        
+        if (ideal > 0) {
+          const yPixel = yAxis.getPixelForValue(ideal);
+          
+          // Draw the dotted line
+          ctx.save();
+          ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([10, 5]);
+          ctx.beginPath();
+          ctx.moveTo(xAxis.left, yPixel);
+          ctx.lineTo(xAxis.right, yPixel);
+          ctx.stroke();
+          
+          // Draw the label on the y-axis
+          ctx.fillStyle = 'rgba(59, 130, 246, 0.9)';
+          ctx.font = 'bold 11px Arial';
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(ideal.toFixed(1), xAxis.left - 5, yPixel);
+          
+          ctx.restore();
+        }
       }
-    }
-  });
+    };
+    
+    itemsPlot = new Chart(ITEMS_PLOT, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Consistent Hash',
+          data: hvalues,
+          backgroundColor: 'rgba(255, 132, 132, 1)',
+          borderColor: 'rgba(255, 132, 132, 1)',
+          datalabels: {
+            display: true
+          }
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          x: {title: {display: true, text: 'Machine'}},
+          y: {title: {display: true, text: 'Item count'}, beginAtZero: true},
+        },
+        plugins: {
+          idealValue: idealItemsPerMachine
+        }
+      },
+      plugins: [idealLinePlugin]
+    });
+  }
+  
   itemsPlot.data.labels = labels;
   itemsPlot.data.datasets[0].data = hvalues;
+  itemsPlot.options.plugins.idealValue = idealItemsPerMachine;
   itemsPlot.update();
 }
 

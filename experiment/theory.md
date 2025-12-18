@@ -1,5 +1,3 @@
-### Theory
-
 ### Distributed Hash Tables (DHTs)
 
 A hash table is a fundamental data structure that provides efficient key lookup operations. It uses a hash function $h(k)$ to map a key $k$ to an index in an array where the value associated with $k$ is stored. The primary challenge in hash tables is dealing with collisions—situations where multiple keys hash to the same index.

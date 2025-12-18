@@ -1,6 +1,4 @@
-### References
-
-- [Distributed hash table](https://en.wikipedia.org/wiki/Distributed_hash_table)
-- [Consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing)
-- [Consistent hashing by Michael Nielsen](https://michaelnielsen.org/blog/consistent-hashing/)
-- [Programmer’s Toolbox Part 3: Consistent Hashing](https://web.archive.org/web/20110721203235/http://www.tomkleinpeter.com/2008/03/17/programmers-toolbox-part-3-consistent-hashing/)
+- [Distributed hash table](https://en.wikipedia.org/wiki/Distributed_hash_table) - Comprehensive Wikipedia article on DHT history (CAN, Chord, Pastry), keyspace partitioning, overlay networks, and real-world applications in BitTorrent and P2P systems
+- [Consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing) - Detailed Wikipedia coverage of the 1997 MIT algorithm for minimal key remapping (n/m keys), with examples from Amazon Dynamo, Cassandra, and Akamai CDN
+- [Consistent hashing by Michael Nielsen](https://michaelnielsen.org/blog/consistent-hashing/) - Clear tutorial with circle diagrams and working Python code showing how replicas improve uniformity and reduce data movement when adding machines
+- [Programmer's Toolbox Part 3: Consistent Hashing](https://web.archive.org/web/20110721203235/http://www.tomkleinpeter.com/2008/03/17/programmers-toolbox-part-3-consistent-hashing/) - Practical walkthrough explaining server failure handling, capacity tuning with multiple hash points, and preventing thundering herd problems during scaling

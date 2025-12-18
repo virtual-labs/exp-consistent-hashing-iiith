@@ -1,4 +1,3 @@
-### Procedure
 
 This virtual experiment aims to provide an interactive platform for students to study the principles and performance of consistent hashing. The user will control several parameters to observe the behavior of a distributed hash table (DHT) under various conditions. The primary focus is on understanding the load distribution, balance, and object migration in consistent hashing compared to a naive DHT.
 

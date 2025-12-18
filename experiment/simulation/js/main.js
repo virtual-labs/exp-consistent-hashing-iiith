@@ -1,37 +1,23 @@
 // CONSTANTS
 // ---------
 
-const SIMULATION        = document.querySelector('#simulation canvas');
-const BUTTONS_FORM      = document.querySelector('#buttons form');
-const QUIZ_DIV          = document.querySelector('#quiz');
-const QUIZ_FORM         = document.querySelector('#quiz form');
-const PARAMETERS_FORM   = document.querySelector('#parameters form');
-const SELECT_EXPERIMENT = document.querySelector('#select-experiment');
-const START_SIMULATION  = document.querySelector('#start-simulation');
-const STOP_SIMULATION   = document.querySelector('#stop-simulation');
-const ITEMS_PLOT        = document.querySelector('#items-plot');
-const MIGRATIONS_PLOT   = document.querySelector('#migrations-plot');
-const START_AUDIO       = document.querySelector('#start-audio');
-const STOP_AUDIO        = document.querySelector('#stop-audio');
-const PAUSE_AUDIO       = document.querySelector('#pause-audio');
-const ADJUST_AUDIO      = document.querySelector('#adjust-audio');
-const SYNCHRONIZE_AUDIO = document.querySelector('#synchronize-audio');
+// DOM Elements will be initialized in main() function
+let SIMULATION, BUTTONS_FORM, QUIZ_DIV, QUIZ_FORM, PARAMETERS_FORM;
+let SELECT_EXPERIMENT, START_SIMULATION, STOP_SIMULATION;
+let ITEMS_PLOT, MIGRATIONS_PLOT;
+let START_AUDIO, STOP_AUDIO, PAUSE_AUDIO, ADJUST_AUDIO, SYNCHRONIZE_AUDIO;
 
-const HASHRING_X        = SIMULATION.width  / 2;
-const HASHRING_Y        = SIMULATION.height / 2;
-const HASHRING_RADIUS   = 0.45 * Math.min(SIMULATION.width, SIMULATION.height);
-const HASHRING_COLOR    = 'black';
-const HASHRING_WIDTH    = SIMULATION.width / 400;
-const MACHINE_COLOR     = 'orange';
-const MACHINE_WIDTH     = SIMULATION.width / 100;
-const ITEM_COLOR        = 'darkseagreen';
-const ITEM_WIDTH        = SIMULATION.width / 200;
-const MARKING_COLOR     = 'red';
-const LEGEND_WIDTH      = SIMULATION.width / 5;
-const LEGEND_HEIGHT     = SIMULATION.width / 30;
-const MAIN_FONT         = '20px verdana';
-const TEXT_FONT         = '13px sans-serif';
-const TEXT_COLOR        = 'black';
+// Canvas and styling constants will be set in main()
+let HASHRING_X, HASHRING_Y, HASHRING_RADIUS;
+const HASHRING_COLOR    = '#3182ce'; // VLabs Primary Blue
+let HASHRING_WIDTH, MACHINE_WIDTH, ITEM_WIDTH, LEGEND_WIDTH, LEGEND_HEIGHT;
+const MACHINE_COLOR     = '#4299e1'; // VLabs Primary Light Blue
+const ITEM_COLOR        = '#10b981'; // VLabs Success Green
+const MARKING_COLOR     = '#f59e0b'; // VLabs Warning Orange
+const MAIN_FONT         = 'bold 18px Inter, system-ui, sans-serif';
+const TEXT_FONT         = '12px Inter, system-ui, sans-serif';
+const TEXT_COLOR        = '#2d3748'; // VLabs Dark Neutral
+const BACKGROUND_COLOR  = '#f8fafc'; // VLabs Light Neutral
 const MAX_INT53         = Math.pow(2, 53) - 1;
 const DIV_INT53         = 1 / MAX_INT53;
 
@@ -47,15 +33,15 @@ const PARAMETERS = {
   initialMachines: 4,
   initialItems:    20,
   simulationSpeed: 10,
-  quizProbability: 0.05,
+  quizProbability: 0,  // Set to 0 to prevent automatic pausing
   quizRetries:     3,
   // Machine parameters.
   virtualNodes:      1,
-  machineUpdateTime: 10,
+  machineUpdateTime: 15,  // Slower machine animations (was 10)
   // Item parameters.
   clickAdditions:  10,
   clickRemovals:   10,
-  itemUpdateTime:  10,
+  itemUpdateTime:  20,    // Slower item animations (was 10)
 };
 
 
@@ -136,66 +122,280 @@ class ConsistentHashRing {
 
   /** Draw the full state of the hash ring. */
   draw(ctx, x, y, r) {
-    // Draw the hash ring.
+    // Draw the hash ring with modern styling
     ctx.strokeStyle = HASHRING_COLOR;
     ctx.lineWidth   = HASHRING_WIDTH;
+    ctx.shadowColor = 'rgba(124, 58, 237, 0.3)';
+    ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.stroke();
-    // Draw the items.
+    
+    // Add inner glow effect
+    ctx.strokeStyle = 'rgba(124, 58, 237, 0.2)';
+    ctx.lineWidth = HASHRING_WIDTH * 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.stroke();
+    
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    
+    // Draw the items with enhanced modern styling
     for (var o of this.items) {
       var a = 2 * Math.PI * (o.hash * DIV_INT53);
       var u = x + r * (1.1 - 0.1 * o.state) * Math.cos(a);
       var v = y + r * (1.1 - 0.1 * o.state) * Math.sin(a);
       var w = (2 - o.state) * ITEM_WIDTH;
-      ctx.fillStyle = ITEM_COLOR;
-      // Draw the item.
-      if (o.isAttached && !o.isMarked) ctx.fillRect(u-w, v-w, 2*w, 2*w);
-      else                             ctx.fillRect(u-3*w, v-1.5*w, 6*w, 3*w);
-      // Draw item association.
+      
+      // Create gradient for items based on their state
+      var itemGradient = ctx.createRadialGradient(u, v, 0, u, v, w*2);
+      
+      if (o.type === DETACHING) {
+        // Red gradient for items being removed
+        itemGradient.addColorStop(0, '#fca5a5'); // Light red
+        itemGradient.addColorStop(0.7, '#ef4444'); // Main red  
+        itemGradient.addColorStop(1, '#dc2626'); // Dark red
+        ctx.shadowColor = 'rgba(239, 68, 68, 0.7)'; // Red glow
+        ctx.shadowBlur = 12;
+      } else if (o.type === ATTACHING) {
+        // Bright green gradient for items being added
+        itemGradient.addColorStop(0, '#86efac'); // Very light green
+        itemGradient.addColorStop(0.7, '#22c55e'); // Bright green
+        itemGradient.addColorStop(1, '#16a34a'); // Dark green
+        ctx.shadowColor = 'rgba(34, 197, 94, 0.7)'; // Bright green glow
+        ctx.shadowBlur = 12;
+      } else {
+        // Normal green gradient for attached items
+        itemGradient.addColorStop(0, '#34d399'); // Light green
+        itemGradient.addColorStop(0.7, ITEM_COLOR); // Main green
+        itemGradient.addColorStop(1, '#047857'); // Dark green
+        ctx.shadowColor = 'rgba(16, 185, 129, 0.5)'; // Normal glow
+        ctx.shadowBlur = 8;
+      }
+      
+      ctx.fillStyle = itemGradient;
+      
+      // Draw the item with enhanced shapes
+      if (o.isAttached && !o.isMarked) {
+        // Draw as hexagon for attached items
+        drawHexagon(ctx, u, v, w*1.5);
+        ctx.fill();
+        
+        // Add border with color based on state
+        if (o.type === DETACHING) {
+          ctx.strokeStyle = '#dc2626'; // Dark red border
+        } else if (o.type === ATTACHING) {
+          ctx.strokeStyle = '#16a34a'; // Dark green border
+        } else {
+          ctx.strokeStyle = '#047857'; // Normal dark green
+        }
+        ctx.lineWidth = 2; // Thicker border for better visibility
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+      } else {
+        // Draw as rounded rectangle for unattached items
+        var itemWidth = 6*w;
+        var itemHeight = 3*w;
+        roundRect(ctx, u-itemWidth/2, v-itemHeight/2, itemWidth, itemHeight, w);
+        ctx.fill();
+        
+        // Add border with color based on state
+        if (o.type === DETACHING) {
+          ctx.strokeStyle = '#dc2626'; // Dark red border
+        } else if (o.type === ATTACHING) {
+          ctx.strokeStyle = '#16a34a'; // Dark green border
+        } else {
+          ctx.strokeStyle = '#047857'; // Normal dark green
+        }
+        ctx.lineWidth = 2; // Thicker border for better visibility
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+      }
+      
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      
+      // Draw item association with enhanced gradient lines
       if (o.isAttached && !o.isMarked && o.state < 1) {
         var m  = this.machineMap.get(o.owner);
         var ma = 2 * Math.PI * (m.hash * DIV_INT53);
         var mu = x + r * (1.1 - 0.1 * m.state) * Math.cos(ma);
         var mv = y + r * (1.1 - 0.1 * m.state) * Math.sin(ma);
-        ctx.strokeStyle = o.type === ATTACHING || o.type === MIGRATING_IN? 'green' : 'red';
-        ctx.lineWidth   = 2;
+        
+        var connectionGradient = ctx.createLinearGradient(u, v, mu, mv);
+        if (o.type === ATTACHING || o.type === MIGRATING_IN) {
+          connectionGradient.addColorStop(0, 'rgba(34, 197, 94, 0.9)'); // Bright green for adding
+          connectionGradient.addColorStop(1, 'rgba(59, 130, 246, 0.9)'); // Blue
+          ctx.shadowColor = 'rgba(34, 197, 94, 0.5)';
+        } else if (o.type === DETACHING || o.type === MIGRATING_OUT) {
+          connectionGradient.addColorStop(0, 'rgba(239, 68, 68, 0.9)'); // Red for removing
+          connectionGradient.addColorStop(1, 'rgba(220, 38, 38, 0.9)'); // Dark red
+          ctx.shadowColor = 'rgba(239, 68, 68, 0.5)';
+        } else {
+          connectionGradient.addColorStop(0, 'rgba(245, 158, 11, 0.8)'); // Amber for normal
+          connectionGradient.addColorStop(1, 'rgba(239, 68, 68, 0.8)'); // Red
+          ctx.shadowColor = 'rgba(16, 185, 129, 0.3)';
+        }
+        
+        ctx.strokeStyle = connectionGradient;
+        ctx.lineWidth = 5; // Thicker lines for better visibility
+        ctx.shadowBlur = 8;
+        
+        // Draw connection line with dashed effect for animation
+        if (o.type === DETACHING) {
+          ctx.setLineDash([8, 8]); // Longer dashes for detaching items
+        } else {
+          ctx.setLineDash([5, 5]); // Normal dashes
+        }
         ctx.beginPath();
-        ctx.moveTo(u,  v);
+        ctx.moveTo(u, v);
         ctx.lineTo(mu, mv);
         ctx.stroke();
+        
+        // Reset line dash
+        ctx.setLineDash([]);
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
-      // Draw the item name.
+      
+      // Draw the item name with better typography
       if (o.isMarked || !o.isAttached) {
         ctx.fillStyle = TEXT_COLOR;
+        // Scale font size based on item width for responsive text
+        const fontSize = Math.max(6, Math.min(12, w * 0.3));
+        ctx.font = `bold ${fontSize}px Inter, system-ui, sans-serif`;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 2;
         ctx.fillText(o.name, u, v);
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+        ctx.font = TEXT_FONT;
       }
-      // Draw markings.
+      
+      // Draw markings with enhanced pulsing effect
       if (o.isMarked) {
         ctx.strokeStyle = MARKING_COLOR;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = MARKING_COLOR;
+        ctx.shadowBlur = 12;
+        
+        // Triple ring effect for items
         ctx.beginPath();
-        ctx.arc(u, v, 3*w, 0, 2 * Math.PI);
+        ctx.arc(u, v, 3*w + 2, 0, 2 * Math.PI);
         ctx.stroke();
+        
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(u, v, 3*w + 6, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        ctx.lineWidth = 1;
+        ctx.shadowBlur = 4;
+        ctx.beginPath();
+        ctx.arc(u, v, 3*w + 10, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
     }
-    // Draw the machines.
+    // Draw the machines with enhanced modern styling
     for (var m of this.machines) {
       var a = 2 * Math.PI * (m.hash * DIV_INT53);
       var u = x + r * (1.1 - 0.1 * m.state) * Math.cos(a);
       var v = y + r * (1.1 - 0.1 * m.state) * Math.sin(a);
       var w = (2 - m.state) * MACHINE_WIDTH;
-      ctx.fillStyle = MACHINE_COLOR;
-      ctx.fillRect(u-3*w, v-w, 6*w, 2*w);
-      ctx.fillStyle = TEXT_COLOR;
+      
+      // Create gradient for machine based on state
+      var machineGradient = ctx.createLinearGradient(u-3*w, v-w, u+3*w, v+w);
+      
+      if (m.type === DETACHING) {
+        // Red gradient for machines being removed
+        machineGradient.addColorStop(0, '#fca5a5'); // Light red
+        machineGradient.addColorStop(0.5, '#ef4444'); // Main red
+        machineGradient.addColorStop(1, '#dc2626'); // Dark red
+        ctx.shadowColor = 'rgba(239, 68, 68, 0.6)'; // Red glow
+        ctx.shadowBlur = 15;
+      } else if (m.type === ATTACHING) {
+        // Bright blue gradient for machines being added
+        machineGradient.addColorStop(0, '#93c5fd'); // Light blue
+        machineGradient.addColorStop(0.5, '#3b82f6'); // Bright blue
+        machineGradient.addColorStop(1, '#1d4ed8'); // Dark blue
+        ctx.shadowColor = 'rgba(59, 130, 246, 0.6)'; // Bright blue glow
+        ctx.shadowBlur = 15;
+      } else {
+        // Normal blue gradient for attached machines
+        machineGradient.addColorStop(0, '#60a5fa'); // Light blue
+        machineGradient.addColorStop(0.5, MACHINE_COLOR); // Main blue
+        machineGradient.addColorStop(1, '#1e40af'); // Dark blue
+        ctx.shadowColor = 'rgba(59, 130, 246, 0.4)'; // Normal glow
+        ctx.shadowBlur = 12;
+      }
+      
+      ctx.fillStyle = machineGradient;
+      
+      // Draw machine as rounded rectangle with better proportions
+      var machineWidth = 8*w;  // Increased from 6*w to 8*w
+      var machineHeight = 3.5*w;  // Increased from 2.5*w to 3.5*w
+      roundRect(ctx, u-machineWidth/2, v-machineHeight/2, machineWidth, machineHeight, w*0.8);
+      ctx.fill();
+      
+      // Add border with color based on state
+      if (m.type === DETACHING) {
+        ctx.strokeStyle = '#dc2626'; // Dark red border
+      } else if (m.type === ATTACHING) {
+        ctx.strokeStyle = '#1d4ed8'; // Dark blue border
+      } else {
+        ctx.strokeStyle = '#1e40af'; // Normal dark blue
+      }
+      ctx.lineWidth = 2; // Thicker border for better visibility
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+      
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      
+      // Draw machine name with better typography and centered positioning
+      ctx.fillStyle = '#ffffff';
+      // Scale font size based on machine width for responsive text (increased size)
+      const fontSize = Math.max(12, Math.min(18, machineWidth * 0.4)); // Increased min from 10 to 12, max from 16 to 18
+      ctx.font = `bold ${fontSize}px Inter, system-ui, sans-serif`;
       ctx.fillText(m.name, u, v);
-      // Draw markings.
+      
+      // Draw markings with enhanced pulsing effect
       if (m.isMarked) {
         ctx.strokeStyle = MARKING_COLOR;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = MARKING_COLOR;
+        ctx.shadowBlur = 15;
+        
+        // Double ring effect
         ctx.beginPath();
-        ctx.arc(u, v, 3*w, 0, 2 * Math.PI);
+        ctx.arc(u, v, machineWidth/2 + 4, 0, 2 * Math.PI);
         ctx.stroke();
+        
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(u, v, machineWidth/2 + 8, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
     }
+    
+    // Reset font
+    ctx.font = TEXT_FONT;
   }
 
   /** Prepare to attach a machine to the hash ring. */
@@ -618,6 +818,12 @@ var hashringMigrations = new Map();
 var naivering = new NaiveHashRing(handleNaiveringMigration);
 var naiveringMigrations = new Map();
 
+/** Array to track all migrations with details */
+var migrationHistory = [];
+
+/** Current action identifier for grouping migrations */
+var currentMigrationAction = null;
+
 /** Plot of items vs machines. */
 var itemsPlot = null;
 
@@ -637,17 +843,141 @@ var images = {
 
 /** Main function. */
 function main() {
+  // Initialize DOM elements
+  SIMULATION        = document.querySelector('#arena');
+  BUTTONS_FORM      = document.querySelector('#control-form');
+  QUIZ_DIV          = document.querySelector('#quiz');
+  QUIZ_FORM         = document.querySelector('#quiz form');
+  PARAMETERS_FORM   = document.querySelector('#parameters-form');
+  SELECT_EXPERIMENT = document.querySelector('#select-experiment');
+  START_SIMULATION  = document.querySelector('#start-simulation');
+  STOP_SIMULATION   = document.querySelector('#stop-simulation');
+  ITEMS_PLOT        = document.querySelector('#items-plot');
+  MIGRATIONS_PLOT   = document.querySelector('#migrations-plot');
+  START_AUDIO       = document.querySelector('#start-audio');
+  STOP_AUDIO        = document.querySelector('#stop-audio');
+  PAUSE_AUDIO       = document.querySelector('#pause-audio');
+  ADJUST_AUDIO      = document.querySelector('#adjust-audio');
+  SYNCHRONIZE_AUDIO = document.querySelector('#synchronize-audio');
+
+  // Initialize canvas-dependent constants
+  if (SIMULATION) {
+    // Function to resize canvas responsively
+    function resizeCanvas() {
+      const container = SIMULATION.parentElement;
+      const containerRect = container.getBoundingClientRect();
+      console.log('Container size:', containerRect.width, 'x', containerRect.height);
+      
+      // Use the full container dimensions to make it fill the square container
+      const availableWidth = containerRect.width - 4; // Account for border only
+      const availableHeight = containerRect.height - 4; // Account for border only
+      
+      // Use the smaller dimension to ensure it fits properly in the container
+      const canvasSize = Math.min(availableWidth, availableHeight);
+      
+      SIMULATION.width = canvasSize;
+      SIMULATION.height = canvasSize;
+      
+      // Set the CSS size to fill the container
+      SIMULATION.style.width = '100%';
+      SIMULATION.style.height = '100%';
+      
+      HASHRING_X        = SIMULATION.width  / 2;
+      HASHRING_Y        = SIMULATION.height / 2; // Center the ring
+      
+      // Make the circle as large as possible within the canvas
+      HASHRING_RADIUS   = (canvasSize / 2) - 20; // Leave some margin for the ring
+      
+      HASHRING_WIDTH    = SIMULATION.width / 200;
+      MACHINE_WIDTH     = SIMULATION.width / 180;
+      ITEM_WIDTH        = SIMULATION.width / 200;
+      LEGEND_WIDTH      = SIMULATION.width / 5;
+      LEGEND_HEIGHT     = SIMULATION.width / 30;
+      
+      console.log('Canvas resized:', SIMULATION.width, 'x', SIMULATION.height);
+      console.log('Hash ring radius:', HASHRING_RADIUS);
+    }
+    
+    // Initial resize
+    resizeCanvas();
+    
+    // Additional resize after a short delay to ensure container is fully rendered
+    setTimeout(resizeCanvas, 100);
+    
+    // Resize on window resize
+    window.addEventListener('resize', resizeCanvas);
+    
+    console.log('Canvas initialized:', SIMULATION.width, 'x', SIMULATION.height);
+    console.log('Machine width:', MACHINE_WIDTH);
+  } else {
+    console.error('Canvas element not found!');
+  }
+
   Chart.register(ChartDataLabels);  // Enable chart data labels
   BUTTONS_FORM.addEventListener('submit', onFormSubmit);
   QUIZ_FORM.addEventListener('submit', onFormSubmit);
   PARAMETERS_FORM.addEventListener('submit', onFormSubmit);
+  
+  // Instructions modal event listeners
+  const instructionsBtn = document.getElementById('instructionsBtn');
+  const instructionsModal = document.getElementById('instructionsModal');
+  const closeModal = document.getElementById('closeModal');
+  
+  if (instructionsBtn && instructionsModal && closeModal) {
+    instructionsBtn.addEventListener('click', () => {
+      instructionsModal.classList.remove('hidden');
+      console.log('Modal opened');
+    });
+    
+    closeModal.addEventListener('click', (e) => {
+      e.stopPropagation();
+      instructionsModal.classList.add('hidden');
+      console.log('Modal closed via X button');
+    });
+    
+    // Close modal when clicking outside - improved version
+    instructionsModal.addEventListener('click', (e) => {
+      console.log('Modal clicked:', e.target.className);
+      if (e.target.classList.contains('modal-backdrop')) {
+        instructionsModal.classList.add('hidden');
+        console.log('Modal closed via outside click');
+      }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!instructionsModal.classList.contains('hidden')) {
+          instructionsModal.classList.add('hidden');
+          console.log('Instructions modal closed via Escape key');
+        }
+        const migrationsModal = document.getElementById('migrationsModal');
+        if (migrationsModal && !migrationsModal.classList.contains('hidden')) {
+          migrationsModal.classList.add('hidden');
+          console.log('Migrations modal closed via Escape key');
+        }
+      }
+    });
+  } else {
+    console.error('Modal elements not found:', {instructionsBtn, instructionsModal, closeModal});
+  }
+  
+  // Setup migration modal
+  setupMigrationModal();
+  
   setTimeout(stopSimulation, 500);  // Let some rendering happen
   requestAnimationFrame(simulationLoop);
   drawButtons();
   drawPlots();
   setInterval(drawPlots, 1000);
 }
-main();
+
+// Ensure DOM is loaded before running main
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', main);
+} else {
+  main();
+}
 
 
 /** Main simulation loop. */
@@ -683,6 +1013,19 @@ function handleHashringMigration(o, lname, mname) {
   mname  = baseMachineName(mname);
   hm.set(lname, (hm.get(lname) || 0) + 1);
   hm.set(mname, (hm.get(mname) || 0) + 1);
+  
+  // Track detailed migration information
+  migrationHistory.push({
+    item: o.name,
+    from: lname,
+    to: mname,
+    timestamp: new Date().toLocaleTimeString(),
+    type: 'consistent',
+    action: currentMigrationAction || { id: Date.now(), description: 'Unknown action', timestamp: new Date().toLocaleTimeString() }
+  });
+  
+  // Update the migration count display
+  updateMigrationCount();
 }
 
 
@@ -691,6 +1034,19 @@ function handleNaiveringMigration(o, lname, mname) {
   var nm = naiveringMigrations;
   nm.set(lname, (nm.get(lname) || 0) + 1);
   nm.set(mname, (nm.get(mname) || 0) + 1);
+  
+  // Track detailed migration information
+  migrationHistory.push({
+    item: o.name,
+    from: lname,
+    to: mname,
+    timestamp: new Date().toLocaleTimeString(),
+    type: 'naive',
+    action: currentMigrationAction || { id: Date.now(), description: 'Unknown action', timestamp: new Date().toLocaleTimeString() }
+  });
+  
+  // Update the migration count display
+  updateMigrationCount();
 }
 
 
@@ -704,12 +1060,12 @@ function onFormSubmit(e) {
 /** Called when "Select Experiment" dropdown is changed. */
 function onSelectExperiment() {
   var p = parameters;
-  ADJUST_AUDIO.play();
+  playAudio(ADJUST_AUDIO);
   switch (SELECT_EXPERIMENT.value) {
-    case '1': Object.assign(p, PARAMETERS, {virtualNodes: 1}); break;
-    case '2': Object.assign(p, PARAMETERS, {virtualNodes: 2}); break;
-    case '4': Object.assign(p, PARAMETERS, {virtualNodes: 4}); break;
-    case '8': Object.assign(p, PARAMETERS, {virtualNodes: 8}); break;
+    case '1': Object.assign(p, PARAMETERS, {virtualNodes: 1, quizProbability: 0}); break;
+    case '2': Object.assign(p, PARAMETERS, {virtualNodes: 2, quizProbability: 0}); break;
+    case '4': Object.assign(p, PARAMETERS, {virtualNodes: 4, quizProbability: 0}); break;
+    case '8': Object.assign(p, PARAMETERS, {virtualNodes: 8, quizProbability: 0}); break;
     default:  Object.assign(p, PARAMETERS, {quizProbability: 0}); break;
   }
   stopSimulation();
@@ -761,25 +1117,72 @@ function onAddMachine() {
   var n = naivering;
   var s = simulation;
   var p = parameters;
-  var el   = document.querySelector('input[name="add-machine-name"]');;
-  var name = baseMachineName(el.value) || 'm' + s.lastMachine; s.lastMachine++;
-  for (var i=0; i<p.virtualNodes; ++i)
-    h.addMachine(name + '.' + i);
-  n.addMachine(name);
+  
+  // Get number of machines to add from input field
+  var machinesInput = document.querySelector('input[name="machines-per-click"]');
+  var machineCount = parseInt(machinesInput.value) || 1;
+  
+  // Add multiple machines based on input value
+  for (var j = 0; j < machineCount; j++) {
+    var name = 'm' + s.lastMachine; 
+    s.lastMachine++;
+    
+    // Set migration action context
+    currentMigrationAction = {
+      id: Date.now() + j,
+      description: `Machine ${name} added`,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
+    // Add virtual nodes for this machine
+    for (var i = 0; i < p.virtualNodes; ++i) {
+      h.addMachine(name + '.' + i);
+    }
+    n.addMachine(name);
+  }
+  
+  // Clear action context after animation completes (itemUpdateTime is ~20 seconds)
+  setTimeout(() => { currentMigrationAction = null; }, 25000);
+  
   playAudio(SYNCHRONIZE_AUDIO);
 }
 
 
 /** Called when "Remove Machine" button is clicked. */
 function onRemoveMachine() {
-  var h  = hashring;
-  var n  = naivering;
-  var p  = parameters;
-  var el = document.querySelector('input[name="remove-machine-name"]');
-  var name = baseMachineName(el.value || h.getRandomMachine().name);
-  for (var i=0; i<p.virtualNodes; ++i)
-    h.removeMachine(name + '.' + i);
-  n.removeMachine(name);
+  var h = hashring;
+  var n = naivering;
+  var p = parameters;
+  
+  // Get number of machines to remove from input field
+  var machinesInput = document.querySelector('input[name="machines-per-click"]');
+  var machineCount = parseInt(machinesInput.value) || 1;
+  
+  // Remove multiple machines based on input value
+  for (var j = 0; j < machineCount; j++) {
+    // Get a random machine to remove
+    var randomMachine = h.getRandomMachine();
+    if (!randomMachine) break; // No more machines to remove
+    
+    var name = baseMachineName(randomMachine.name);
+    
+    // Set migration action context
+    currentMigrationAction = {
+      id: Date.now() + j,
+      description: `Machine ${name} removed`,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
+    // Remove virtual nodes for this machine
+    for (var i = 0; i < p.virtualNodes; ++i) {
+      h.removeMachine(name + '.' + i);
+    }
+    n.removeMachine(name);
+  }
+  
+  // Clear action context after animation completes (itemUpdateTime is ~20 seconds)
+  setTimeout(() => { currentMigrationAction = null; }, 25000);
+  
   playAudio(SYNCHRONIZE_AUDIO);
 }
 
@@ -882,6 +1285,9 @@ function resetSimulation() {
   nm.clear();
   h.reset();
   n.reset();
+  // Clear migration history when resetting
+  migrationHistory.length = 0;
+  updateMigrationCount();
 }
 
 
@@ -969,24 +1375,109 @@ function renderSimulation() {
   ctx.font = TEXT_FONT;
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
+  
   drawBackground(ctx);
   hashring.draw(ctx, HASHRING_X, HASHRING_Y, HASHRING_RADIUS);
-  ctx.fillStyle = MACHINE_COLOR;
-  ctx.fillRect(HASHRING_X - 0.5*LEGEND_WIDTH, 0.5*HASHRING_Y - 0.5*LEGEND_HEIGHT, LEGEND_WIDTH, LEGEND_HEIGHT);
-  ctx.fillStyle = ITEM_COLOR;
-  ctx.fillRect(HASHRING_X - 0.5*LEGEND_WIDTH, 0.6*HASHRING_Y - 0.5*LEGEND_HEIGHT, LEGEND_WIDTH, LEGEND_HEIGHT);
-  ctx.font = MAIN_FONT;
-  ctx.fillStyle = TEXT_COLOR;
-  ctx.fillText('Consistent Hash Ring', HASHRING_X, 0.4 * HASHRING_Y);
-  ctx.fillText('Machines: ' + h.attachedMachineCount() / p.virtualNodes, HASHRING_X, 0.5 * HASHRING_Y);
-  ctx.fillText('Items: '    + h.attachedItemCount(), HASHRING_X, 0.6 * HASHRING_Y);
-  ctx.font = TEXT_FONT;
+  
+  // Draw modern legend with rounded rectangles and shadows
+  drawModernLegend(ctx, h, p);
 }
 
 
 /** Draw the simulation background. */
 function drawBackground(ctx) {
-  ctx.clearRect(0, 0, SIMULATION.width, SIMULATION.height);
+  // Create a subtle gradient background that adapts to canvas size
+  var gradient = ctx.createRadialGradient(
+    HASHRING_X, HASHRING_Y, 0,
+    HASHRING_X, HASHRING_Y, HASHRING_RADIUS * 1.5
+  );
+  gradient.addColorStop(0, '#faf5ff'); // Very light purple center
+  gradient.addColorStop(1, '#f1f5f9'); // Light gray edges
+  
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
+/** Draw modern legend and title */
+function drawModernLegend(ctx, h, p) {
+  // Title at the top center
+  ctx.font = MAIN_FONT;
+  ctx.fillStyle = '#7c3aed'; // Purple
+  ctx.textAlign = 'center';
+  ctx.fillText('🔄 Consistent Hash Ring', HASHRING_X, 40); // Adjusted for centered layout
+  
+  // Draw machine and items stats at center of hash ring
+  var statsX = HASHRING_X;
+  var statsY = HASHRING_Y - 12;
+  var itemSpacing = 25;
+  
+  // Machine count
+  ctx.textAlign = 'center';
+  ctx.font = '14px Inter, system-ui, sans-serif';
+  drawCenterLegendItem(ctx, statsX, statsY, MACHINE_COLOR, 'Machines', h.attachedMachineCount() / p.virtualNodes);
+  
+  // Item count
+  drawCenterLegendItem(ctx, statsX, statsY + itemSpacing, ITEM_COLOR, 'Items', h.attachedItemCount());
+  
+  // Reset text alignment and font
+  ctx.textAlign = 'center';
+  ctx.font = TEXT_FONT;
+}
+
+/** Draw a legend item at center with modern styling */
+function drawCenterLegendItem(ctx, x, y, color, label, count) {
+  // Draw colored indicator circle
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x - 60, y+3, 6, 0, 2 * Math.PI);
+  ctx.fill();
+  
+  // Add subtle glow effect
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.arc(x - 60, y +3, 6, 0, 2 * Math.PI);
+  ctx.fill();
+  
+  // Reset shadow
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  
+  // Draw label and count
+  ctx.fillStyle = TEXT_COLOR;
+  ctx.font = 'bold 16px Inter, system-ui, sans-serif'; // Increased from 14px to 16px
+  ctx.fillText(label + ': ' + count, x, y + 4);
+}
+
+/** Helper function to draw rounded rectangles */
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+/** Helper function to draw hexagon */
+function drawHexagon(ctx, x, y, radius) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i;
+    const xPos = x + radius * Math.cos(angle);
+    const yPos = y + radius * Math.sin(angle);
+    if (i === 0) {
+      ctx.moveTo(xPos, yPos);
+    } else {
+      ctx.lineTo(xPos, yPos);
+    }
+  }
+  ctx.closePath();
 }
 
 
@@ -1016,26 +1507,82 @@ function drawItemsPlot() {
   }
   var labels  = [...counts.keys()];
   var hvalues = [...counts.values()];
-  itemsPlot = itemsPlot || new Chart(ITEMS_PLOT, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Consistent Hash',
-        data: hvalues,
-        backgroundColor: 'rgba(255, 132, 132, 1)',
-        borderColor: 'rgba(255, 132, 132, 1)',
-      }]
-    },
-    options: {
-      scales: {
-        x: {title: {display: true, text: 'Machine'}},
-        y: {title: {display: true, text: 'Item count'}, beginAtZero: true},
+  
+  // Calculate ideal items per machine (total items / number of machines)
+  var totalItems = hvalues.reduce((sum, val) => sum + val, 0);
+  var idealItemsPerMachine = labels.length > 0 ? totalItems / labels.length : 0;
+  
+  if (!itemsPlot) {
+    // Plugin to draw horizontal ideal line
+    const idealLinePlugin = {
+      id: 'idealLine',
+      afterDatasetsDraw: (chart) => {
+        const ctx = chart.ctx;
+        const yAxis = chart.scales.y;
+        const xAxis = chart.scales.x;
+        const ideal = chart.options.plugins.idealValue || 0;
+        
+        if (ideal > 0) {
+          const yPixel = yAxis.getPixelForValue(ideal);
+          
+          // Draw the dotted line
+          ctx.save();
+          ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([10, 5]);
+          ctx.beginPath();
+          ctx.moveTo(xAxis.left, yPixel);
+          ctx.lineTo(xAxis.right, yPixel);
+          ctx.stroke();
+          
+          // Draw the label on the y-axis
+          ctx.fillStyle = 'rgba(59, 130, 246, 0.9)';
+          ctx.font = 'bold 11px Arial';
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(ideal.toFixed(1), xAxis.left - 5, yPixel);
+          
+          ctx.restore();
+        }
       }
-    }
-  });
+    };
+    
+    itemsPlot = new Chart(ITEMS_PLOT, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Consistent Hash',
+          data: hvalues,
+          backgroundColor: 'rgba(255, 132, 132, 1)',
+          borderColor: 'rgba(255, 132, 132, 1)',
+          datalabels: {
+            display: true
+          }
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          x: {title: {display: true, text: 'Machine'}},
+          y: {title: {display: true, text: 'Item count'}, beginAtZero: true},
+        },
+        plugins: {
+          idealValue: idealItemsPerMachine
+        }
+      },
+      plugins: [idealLinePlugin]
+    });
+  }
+  
   itemsPlot.data.labels = labels;
   itemsPlot.data.datasets[0].data = hvalues;
+  itemsPlot.options.plugins.idealValue = idealItemsPerMachine;
   itemsPlot.update();
 }
 
@@ -1064,6 +1611,8 @@ function drawMigrationsPlot() {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: {title: {display: true, text: 'Machine'}},
         y: {title: {display: true, text: 'Migration count (to / from)'}, beginAtZero: true},
@@ -1106,8 +1655,8 @@ function loadImage(url) {
 
 /** Play an audio element. */
 function playAudio(el) {
-  el.load();
-  el.play();
+  // Sound effects disabled for better user experience
+  return;
 }
 
 
@@ -1171,6 +1720,115 @@ function mod(x, y) {
 function identity(x) {
   return x;
 
+}
+
+
+// MIGRATION HISTORY FUNCTIONS
+// ----------------------------
+
+/** Update the migration count badge */
+function updateMigrationCount() {
+  const countElement = document.getElementById('migrationCount');
+  const countElementMobile = document.getElementById('migrationCountMobile');
+  if (countElement) {
+    countElement.textContent = migrationHistory.length;
+  }
+  if (countElementMobile) {
+    countElementMobile.textContent = migrationHistory.length;
+  }
+}
+
+/** Render the migrations list in the modal */
+function renderMigrationsList() {
+  const migrationsList = document.getElementById('migrationsList');
+  const totalMigrations = document.getElementById('totalMigrations');
+  
+  if (!migrationsList || !totalMigrations) return;
+  
+  totalMigrations.textContent = migrationHistory.length;
+  
+  if (migrationHistory.length === 0) {
+    migrationsList.innerHTML = '<p class="text-gray-500 text-center py-8">No migrations recorded yet. Start the simulation to see migrations.</p>';
+    return;
+  }
+  
+  // Group migrations by action
+  const groupedMigrations = {};
+  migrationHistory.forEach(migration => {
+    const actionId = migration.action.id;
+    if (!groupedMigrations[actionId]) {
+      groupedMigrations[actionId] = {
+        action: migration.action,
+        migrations: []
+      };
+    }
+    groupedMigrations[actionId].migrations.push(migration);
+  });
+  
+  // Render grouped migrations in reverse order (newest first)
+  const actionGroups = Object.values(groupedMigrations).reverse();
+  migrationsList.innerHTML = actionGroups.map(group => `
+    <div class="migration-action-group mb-4 bg-white border border-gray-200">
+      <div class="migration-action-header bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-800">${group.action.description}</span>
+          <span class="text-xs text-gray-500">${group.action.timestamp} • ${group.migrations.length} migration${group.migrations.length !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+      <div class="migration-items-list p-2 space-y-1">
+        ${group.migrations.map(migration => `
+          <div class="migration-item-compact flex items-center justify-between p-2 bg-white rounded hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-2 flex-1">
+              <span class="migration-item-name">${migration.item}</span>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="migration-machine">${migration.from}</span>
+                <svg class="w-3 h-3 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+                <span class="migration-machine">${migration.to}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/** Clear migration history */
+function clearMigrationHistory() {
+  if (confirm('Are you sure you want to clear all migration history?')) {
+    migrationHistory.length = 0;
+    updateMigrationCount();
+    renderMigrationsList();
+  }
+}
+
+/** Setup migration modal event listeners */
+function setupMigrationModal() {
+  const migrationsBtn = document.getElementById('migrationsBtn');
+  const migrationsModal = document.getElementById('migrationsModal');
+  const closeMigrationsModal = document.getElementById('closeMigrationsModal');
+  
+  if (!migrationsBtn || !migrationsModal || !closeMigrationsModal) return;
+  
+  // Open modal
+  migrationsBtn.addEventListener('click', () => {
+    migrationsModal.classList.remove('hidden');
+    renderMigrationsList();
+  });
+  
+  // Close modal
+  closeMigrationsModal.addEventListener('click', () => {
+    migrationsModal.classList.add('hidden');
+  });
+  
+  // Close modal when clicking backdrop
+  migrationsModal.addEventListener('click', (e) => {
+    if (e.target === migrationsModal || e.target.classList.contains('modal-backdrop')) {
+      migrationsModal.classList.add('hidden');
+    }
+  });
 }
 
 

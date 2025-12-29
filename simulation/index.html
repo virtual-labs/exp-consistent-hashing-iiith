@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consistent Hashing Simulation - Interactive Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/main.css?v=2">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            // VLabs Design System Colors
+            primary: '#3182ce',    // Primary Blue
+            primaryLight: '#4299e1', // Light Blue
+            success: '#10b981',    // Success Green
+            successLight: '#48bb78', // Light Green
+            warning: '#f59e0b',    // Warning Orange
+            warningLight: '#ed8936', // Light Orange
+            error: '#ef4444',      // Error Red
+            errorLight: '#f56565', // Light Red
+            neutral: '#2d3748',    // Dark Neutral
+            neutralMid: '#64748b', // Mid Neutral
+            neutralLight: '#f8fafc', // Light Neutral
+            backgroundStart: '#667eea', // Purple gradient start
+            backgroundEnd: '#764ba2',   // Purple gradient end
+            // Legacy support
+            purple: '#3182ce',
+            purpleLight: '#4299e1'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gradient-to-br from-backgroundStart to-backgroundEnd min-h-screen">
+  <!-- Instructions Button (Floating) -->
+  <button id="instructionsBtn" class="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 neu-button-pill bg-white hover:bg-blue-50 text-primary px-3 py-2 sm:px-6 sm:py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 flex items-center gap-2 font-medium">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span class="hidden sm:inline">Instructions</span>
+  </button>
+
+
+
+  <!-- Instructions Modal -->
+  <div id="instructionsModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4 modal-backdrop">
+      <div class="instructions-modal-content bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[80vh] overflow-y-auto border border-purple-100" onclick="event.stopPropagation();">
+        <div class="sticky top-0 bg-gradient-to-r from-primary to-primaryLight text-white p-6 rounded-t-2xl">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="bg-white bg-opacity-20 p-2 rounded-full">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold">Instructions</h2>
+                <p class="text-blue-100 text-sm">Learn how to use the Consistent Hashing Simulator</p>
+              </div>
+            </div>
+            <button id="closeModal" class="text-white hover:text-red-200 transition-colors p-3 hover:bg-error hover:bg-opacity-20 rounded-full z-10 relative bg-error bg-opacity-20">
+              <svg class="w-7 h-7" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="instruction-card">
+              <div class="instruction-icon bg-blue-100 text-primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                </svg>
+              </div>
+              <h3 class="instruction-title">Interactive Controls</h3>
+              <ul class="instruction-list">
+                <li><strong>Select Experiment:</strong> Dropdown to select the experiment type (number of virtual nodes).</li>
+                <li><strong>Start, Pause, Reset Simulation:</strong> Buttons to control the simulation.</li>
+                <li><strong>Adjust/Reset Parameters:</strong> Buttons to adjust or reset the simulation parameters.</li>
+                <li><strong>Add/Remove Machine Buttons:</strong> Buttons to add/remove a specified, or a random machine.</li>
+                <li><strong>Add/Remove Items Buttons:</strong> Buttons to add/remove a specified number of items (random).</li>
+              </ul>
+            </div>
+            <div class="instruction-card">
+              <div class="instruction-icon bg-green-100 text-success">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <h3 class="instruction-title">Simulation Metrics</h3>
+              <ul class="instruction-list">
+                <li><strong>Load Distribution:</strong> Bar chart showing the number of items per machine.</li>
+                <li><strong>Items Migrations:</strong> Display of the number of objects migrated upon machine addition/removal.</li>
+              </ul>
+            </div>
+            <div class="instruction-card">
+              <div class="instruction-icon bg-blue-100 text-primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+              <h3 class="instruction-title">Parameter Input Fields</h3>
+              <ul class="instruction-list">
+                <li><strong>Initial number of machines (servers):</strong> Specify the initial number of machines in the system.</li>
+                <li><strong>Initial number of items (objects):</strong> Set the initial number of items to be stored in the DHT.</li>
+                <li><strong>Virtual nodes per machine:</strong> Adjust the number of virtual nodes each machine should have.</li>
+                <li><strong>Items to add on click:</strong> Set the number of items to add per click.</li>
+                <li><strong>Items to remove on click:</strong> Specify the number of items to remove per click.</li>
+              </ul>
+            </div>
+            <div class="instruction-card">
+              <div class="instruction-icon bg-orange-100 text-warning">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+              </div>
+              <h3 class="instruction-title">Learning Objectives</h3>
+              <ul class="instruction-list">
+                <li>Understand how consistent hashing distributes load among nodes.</li>
+                <li>Observe the impact of virtual nodes on load balance.</li>
+                <li>Compare consistent hashing with naive DHT in terms of load distribution, resilience, and performance.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Migrations History Modal -->
+  <div id="migrationsModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4 modal-backdrop">
+      <div class="instructions-modal-content bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[80vh] overflow-y-auto border border-green-100" onclick="event.stopPropagation();">
+        <div class="sticky top-0 bg-gradient-to-r from-success to-successLight text-white p-6 rounded-t-2xl">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="bg-white bg-opacity-20 p-2 rounded-full">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold">Migration History</h2>
+                <p class="text-green-100 text-sm">Track all item migrations between machines</p>
+              </div>
+            </div>
+            <button id="closeMigrationsModal" class="text-white hover:text-red-200 transition-colors p-3 hover:bg-error hover:bg-opacity-20 rounded-full z-10 relative bg-error bg-opacity-20">
+              <svg class="w-7 h-7" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-8">
+          <div class="mb-4 flex justify-between items-center">
+            <p class="text-gray-600">Total Migrations: <span id="totalMigrations" class="font-bold text-primary">0</span></p>
+            <button id="clearMigrations" onclick="clearMigrationHistory()" class="px-4 py-2 bg-error hover:bg-errorLight text-white rounded-lg transition-all duration-200 text-sm font-medium">
+              Clear History
+            </button>
+          </div>
+          <div id="migrationsList" class="space-y-2 max-h-96 overflow-y-auto">
+            <p class="text-gray-500 text-center py-8">No migrations recorded yet. Start the simulation to see migrations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Simulation Area -->
+  <div class="app-container">
+    <div class="max-w-full mx-auto px-2 sm:px-4 mb-4 pt-6 sm:pt-8">
+    
+    <!-- Controls Row - Full Width Compact Layout -->
+    <div class="floating-card p-2 sm:p-3 mb-3 sm:mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 items-start">
+        
+        <!-- Experiment Selection -->
+        <div class="lg:col-span-1">
+          <form id="control-form">
+            <label class="block text-xs font-medium text-neutralMid mb-1">Experiment Type</label>
+            <div class="mb-1">
+                              <label class="block text-xs text-gray-600 mb-0.5">‎  </label>
+
+              <select id="select-experiment" onchange="onSelectExperiment()" 
+                      class="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white shadow-sm">
+                <option disabled selected>Select an Experiment</option>
+                <option value="1">No virtual nodes</option>
+                <option value="2">2 virtual nodes per machine</option>
+                <option value="4">4 virtual nodes per machine</option>
+                <option value="8">8 virtual nodes per machine</option>
+                <option value="x">Custom (no quiz)</option>
+              </select>
+            </div>
+            <div class="flex gap-1">
+              <button type="button" id="start-simulation" onclick="onStartSimulation()" 
+                      class="flex-1 px-2 py-0.5 bg-primary hover:bg-primaryLight text-white text-xs rounded transition-all duration-200">
+                Start
+              </button>
+              <button type="button" id="stop-simulation" onclick="onStopSimulation()" 
+                      class="flex-1 px-2 py-0.5 bg-error hover:bg-errorLight text-white text-xs rounded transition-all duration-200">
+                Stop
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Machine Controls -->
+        <div class="lg:col-span-1">
+          <label class="block text-xs font-medium text-neutralMid mb-1">Machines</label>
+          <div class="mb-1">
+            <label class="block text-xs text-gray-600 mb-0.5">Count per Action</label>
+            <input type="number" name="machines-per-click" placeholder="1" value="1"
+                   class="w-full px-2 py-1 border border-gray-300 rounded text-xs text-center">
+          </div>
+          <div class="flex gap-1">
+            <button type="button" id="add-machine" onclick="onAddMachine()" 
+                    class="flex-1 px-2 py-0.5 bg-success hover:bg-successLight text-white text-xs rounded transition-all duration-200">
+              ➕ Add
+            </button>
+            <button type="button" id="remove-machine" onclick="onRemoveMachine()" 
+                    class="flex-1 px-2 py-0.5 bg-error hover:bg-errorLight text-white text-xs rounded transition-all duration-200">
+              ➖ Remove
+            </button>
+          </div>
+        </div>
+
+        <!-- Item Controls -->
+        <div class="lg:col-span-1">
+          <label class="block text-xs font-medium text-neutralMid mb-1">Items</label>
+          <div class="flex gap-1 mb-1">
+            <div class="flex-1">
+              <label class="block text-xs text-gray-600 mb-0.5">Add Count</label>
+              <input type="number" id="items-add-input" placeholder="10" value="10" title="Items to Add"
+                     class="w-full px-1 py-1 border border-gray-300 rounded text-xs text-center">
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs text-gray-600 mb-0.5">Remove Count</label>
+              <input type="number" id="items-remove-input" placeholder="10" value="10" title="Items to Remove"
+                     class="w-full px-1 py-1 border border-gray-300 rounded text-xs text-center">
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <button type="button" id="add-items" onclick="onAddItems()" 
+                    class="flex-1 px-2 py-0.5 bg-primary hover:bg-primaryLight text-white text-xs rounded transition-all duration-200">
+              📦 Add
+            </button>
+            <button type="button" id="remove-items" onclick="onRemoveItems()" 
+                    class="flex-1 px-2 py-0.5 bg-error hover:bg-errorLight text-white text-xs rounded transition-all duration-200">
+              🗑️ Remove
+            </button>
+          </div>
+        </div>
+
+        <!-- Parameters & Controls -->
+        <div class="sm:col-span-2 lg:col-span-2">
+          <form id="parameters-form">
+            <label class="block text-xs font-medium text-neutralMid mb-1">Parameters</label>
+            <div class="grid grid-cols-3 gap-1 mb-1">
+              <div>
+                <label class="block text-xs text-gray-600 mb-0.5">Init Machines</label>
+                <input type="number" name="initial-machines" placeholder="4" title="Initial Machines"
+                       class="w-full px-1 py-1 border border-gray-300 rounded text-xs text-center">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-600 mb-0.5">Init Items</label>
+                <input type="number" name="initial-items" placeholder="20" title="Initial Items"
+                       class="w-full px-1 py-1 border border-gray-300 rounded text-xs text-center">
+              </div>
+              <div>
+                <label class="block text-xs text-gray-600 mb-0.5">Virtual Nodes</label>
+                <input type="number" name="virtual-nodes" placeholder="1" title="Virtual Nodes"
+                       class="w-full px-1 py-1 border border-gray-300 rounded text-xs text-center">
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <button type="button" id="adjust-parameters" onclick="onAdjustParameters()" 
+                      class="flex-1 px-2 py-0.5 bg-primary hover:bg-primaryLight text-white text-xs rounded transition-all duration-200">
+                ⚙️ Adjust
+              </button>
+              <button type="button" id="reset-parameters" onclick="onResetParameters()" 
+                      class="flex-1 px-2 py-0.5 bg-neutralMid hover:bg-neutral text-white text-xs rounded transition-all duration-200">
+                🔄 Reset
+              </button>
+            </div>
+            <!-- Hidden inputs for JS compatibility - synced with visible inputs -->
+            <input type="number" name="click-additions" value="10" class="hidden">
+            <input type="number" name="click-removals" value="10" class="hidden">
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Main Content - Two Equal Square Divs -->
+    <div class="main-content-grid">
+      
+      <!-- Left Div - Hash Ring Visualization -->
+      <div class="visualization-container floating-card">
+        <div class="flex justify-between items-center mb-2 sm:mb-3 flex-wrap gap-2">
+          <h2 class="panel-title text-primary mb-0 text-sm sm:text-base">🔄 Hash Ring Visualization</h2>
+          <button id="migrationsBtn" style="background-color: #3182ce !important; color: white !important;" class="px-2 py-1 sm:px-4 sm:py-2 rounded-full shadow-md transition-all duration-300 hover:opacity-90 hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            <span class="hidden sm:inline">Migrations (<span id="migrationCount">0</span>)</span>
+            <span class="sm:hidden">(<span id="migrationCountMobile">0</span>)</span>
+          </button>
+        </div>
+        <div class="visualization-content">
+          <canvas id="arena" class="visualization-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Right Div - Performance Metrics with Tabs -->
+      <div class="metrics-container floating-card">
+        <h2 class="panel-title mb-2 sm:mb-3 text-primary text-sm sm:text-base">📊 Performance Metrics</h2>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button class="tab-button active" onclick="switchTab('load-distribution')" id="load-tab">
+            Load Distribution
+          </button>
+          <button class="tab-button" onclick="switchTab('migration-analysis')" id="migration-tab">
+            Migration Analysis
+          </button>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content-container">
+          <!-- Load Distribution Tab -->
+          <div id="load-distribution" class="tab-content active">
+            <canvas id="items-plot" class="chart-canvas"></canvas>
+          </div>
+          
+          <!-- Migration Analysis Tab -->
+          <div id="migration-analysis" class="tab-content">
+            <canvas id="migrations-plot" class="chart-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Quiz Section (Hidden by default) -->
+    <div id="quiz" class="floating-card p-3 sm:p-4 mb-3 sm:mb-4 hidden">
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-3">
+        <form class="flex flex-col gap-2 sm:gap-3">
+          <div class="flex-1">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Quiz Question</label>
+            <p class="text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm">A possible quiz question appears here</p>
+            <input type="text" name="answer" placeholder="Type in your answer here"
+                   class="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs sm:text-sm">
+          </div>
+          <button type="button" id="submit-quiz" onclick="onSubmitQuiz()" 
+                  class="neu-button green whitespace-nowrap text-xs sm:text-sm w-full sm:w-auto">
+            Submit Answer
+          </button>
+        </form>
+      </div>
+    </div>
+
+    </div>
+
+  </div>
+
+  <!-- Load JavaScript -->
+  <script src="./js/main.js?v=2"></script>
+  
+  <!-- Tab switching functionality -->
+  <script>
+    function switchTab(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Remove active class from all tab buttons
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => button.classList.remove('active'));
+      
+      // Show selected tab content
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked button
+      if (tabName === 'load-distribution') {
+        document.getElementById('load-tab').classList.add('active');
+      } else if (tabName === 'migration-analysis') {
+        document.getElementById('migration-tab').classList.add('active');
+      }
+    }
+  </script>
+  
+  <!-- Sync visible item inputs with hidden form inputs -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const itemsAddInput = document.getElementById('items-add-input');
+      const itemsRemoveInput = document.getElementById('items-remove-input');
+      const hiddenAddInput = document.querySelector('input[name="click-additions"]');
+      const hiddenRemoveInput = document.querySelector('input[name="click-removals"]');
+      
+      // Sync visible inputs to hidden inputs
+      itemsAddInput.addEventListener('input', function() {
+        hiddenAddInput.value = this.value;
+      });
+      
+      itemsRemoveInput.addEventListener('input', function() {
+        hiddenRemoveInput.value = this.value;
+      });
+      
+      // Initialize values
+      hiddenAddInput.value = itemsAddInput.value;
+      hiddenRemoveInput.value = itemsRemoveInput.value;
+    });
+  </script>
+<script src="../assets/js/iframeResize.js"></script>
+        
+        </body>
+</html>

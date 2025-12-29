@@ -1,0 +1,42 @@
+
+/home/runner/work/exp-consistent-hashing-iiith/exp-consistent-hashing-iiith/experiment/simulation/js/main.js
+    13:48  warning  'LEGEND_WIDTH' is assigned a value but never used      no-unused-vars
+    13:62  warning  'LEGEND_HEIGHT' is assigned a value but never used     no-unused-vars
+    37:7   warning  'BACKGROUND_COLOR' is assigned a value but never used  no-unused-vars
+    66:7   warning  'UNUSED' is assigned a value but never used            no-unused-vars
+   327:14  warning  'm' is already defined                                 no-redeclare
+   328:11  warning  'a' is already defined                                 no-redeclare
+   329:11  warning  'u' is already defined                                 no-redeclare
+   330:11  warning  'v' is already defined                                 no-redeclare
+   331:11  warning  'w' is already defined                                 no-redeclare
+   459:11  warning  'm' is already defined                                 no-redeclare
+   480:16  warning  'o' is already defined                                 no-redeclare
+   505:16  warning  'o' is already defined                                 no-redeclare
+   574:9   warning  'n' is already defined                                 no-redeclare
+   596:11  warning  'o' is already defined                                 no-redeclare
+   605:14  warning  'o' is already defined                                 no-redeclare
+   612:14  warning  'o' is already defined                                 no-redeclare
+   771:9   warning  'n' is already defined                                 no-redeclare
+   883:5   warning  Move function declaration to function body root        no-inner-declarations
+   936:3   warning  'Chart' is not defined                                 no-undef
+   936:18  warning  'ChartDataLabels' is not defined                       no-undef
+  1081:10  warning  'onSelectExperiment' is defined but never used         no-unused-vars
+  1097:10  warning  'onStartSimulation' is defined but never used          no-unused-vars
+  1113:10  warning  'onStopSimulation' is defined but never used           no-unused-vars
+  1120:10  warning  'onAdjustParameters' is defined but never used         no-unused-vars
+  1128:10  warning  'onResetParameters' is defined but never used          no-unused-vars
+  1135:10  warning  'onAddMachine' is defined but never used               no-unused-vars
+  1172:10  warning  'onRemoveMachine' is defined but never used            no-unused-vars
+  1211:10  warning  'onAddItems' is defined but never used                 no-unused-vars
+  1226:10  warning  'onRemoveItems' is defined but never used              no-unused-vars
+  1279:12  warning  'i' is already defined                                 no-redeclare
+  1353:10  warning  'onSubmitQuiz' is defined but never used               no-unused-vars
+  1575:21  warning  'Chart' is not defined                                 no-undef
+  1622:42  warning  'Chart' is not defined                                 no-undef
+  1655:10  warning  'getMousePos' is defined but never used                no-unused-vars
+  1674:10  warning  'loadImage' is defined but never used                  no-unused-vars
+  1682:20  warning  'el' is defined but never used                         no-unused-vars
+  1824:10  warning  'clearMigrationHistory' is defined but never used      no-unused-vars
+
+✖ 37 problems (0 errors, 37 warnings)
+

@@ -14,9 +14,26 @@ let HASHRING_WIDTH, MACHINE_WIDTH, ITEM_WIDTH, LEGEND_WIDTH, LEGEND_HEIGHT;
 const MACHINE_COLOR     = '#4299e1'; // VLabs Primary Light Blue
 const ITEM_COLOR        = '#10b981'; // VLabs Success Green
 const MARKING_COLOR     = '#f59e0b'; // VLabs Warning Orange
-const MAIN_FONT         = 'bold 18px Inter, system-ui, sans-serif';
-const TEXT_FONT         = '12px Inter, system-ui, sans-serif';
 const TEXT_COLOR        = '#2d3748'; // VLabs Dark Neutral
+
+// Responsive font functions based on canvas size
+let CANVAS_SIZE = 400; // Default, will be updated on resize
+function getMainFont() {
+  const size = Math.max(12, Math.min(18, CANVAS_SIZE / 25));
+  return `bold ${size}px Inter, system-ui, sans-serif`;
+}
+function getTextFont() {
+  const size = Math.max(9, Math.min(12, CANVAS_SIZE / 40));
+  return `${size}px Inter, system-ui, sans-serif`;
+}
+function getLegendFont() {
+  const size = Math.max(10, Math.min(16, CANVAS_SIZE / 30));
+  return `bold ${size}px Inter, system-ui, sans-serif`;
+}
+function getStatsFont() {
+  const size = Math.max(10, Math.min(14, CANVAS_SIZE / 35));
+  return `${size}px Inter, system-ui, sans-serif`;
+}
 const BACKGROUND_COLOR  = '#f8fafc'; // VLabs Light Neutral
 const MAX_INT53         = Math.pow(2, 53) - 1;
 const DIV_INT53         = 1 / MAX_INT53;
@@ -274,7 +291,7 @@ class ConsistentHashRing {
         ctx.fillText(o.name, u, v);
         ctx.shadowBlur = 0;
         ctx.shadowColor = 'transparent';
-        ctx.font = TEXT_FONT;
+        ctx.font = getTextFont();
       }
       
       // Draw markings with enhanced pulsing effect
@@ -395,7 +412,7 @@ class ConsistentHashRing {
     }
     
     // Reset font
-    ctx.font = TEXT_FONT;
+    ctx.font = getTextFont();
   }
 
   /** Prepare to attach a machine to the hash ring. */
@@ -877,6 +894,9 @@ function main() {
       
       SIMULATION.width = canvasSize;
       SIMULATION.height = canvasSize;
+      
+      // Update global canvas size for responsive fonts
+      CANVAS_SIZE = canvasSize;
       
       // Set the CSS size to fill the container
       SIMULATION.style.width = '100%';
@@ -1372,7 +1392,7 @@ function renderSimulation() {
   var p = parameters;
   if (!i.isLoaded) loadImages();
   var ctx  = SIMULATION.getContext('2d');
-  ctx.font = TEXT_FONT;
+  ctx.font = getTextFont();
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
   
@@ -1400,20 +1420,21 @@ function drawBackground(ctx) {
 
 /** Draw modern legend and title */
 function drawModernLegend(ctx, h, p) {
-  // Title at the top center
-  ctx.font = MAIN_FONT;
+  // Title at the top center - responsive position
+  const titleY = Math.max(25, CANVAS_SIZE / 12);
+  ctx.font = getMainFont();
   ctx.fillStyle = '#7c3aed'; // Purple
   ctx.textAlign = 'center';
-  ctx.fillText('🔄 Consistent Hash Ring', HASHRING_X, 40); // Adjusted for centered layout
+  ctx.fillText('🔄 Consistent Hash Ring', HASHRING_X, titleY);
   
   // Draw machine and items stats at center of hash ring
   var statsX = HASHRING_X;
-  var statsY = HASHRING_Y - 12;
-  var itemSpacing = 25;
+  var statsY = HASHRING_Y - Math.max(8, CANVAS_SIZE / 40);
+  var itemSpacing = Math.max(18, CANVAS_SIZE / 20);
   
   // Machine count
   ctx.textAlign = 'center';
-  ctx.font = '14px Inter, system-ui, sans-serif';
+  ctx.font = getStatsFont();
   drawCenterLegendItem(ctx, statsX, statsY, MACHINE_COLOR, 'Machines', h.attachedMachineCount() / p.virtualNodes);
   
   // Item count
@@ -1421,22 +1442,26 @@ function drawModernLegend(ctx, h, p) {
   
   // Reset text alignment and font
   ctx.textAlign = 'center';
-  ctx.font = TEXT_FONT;
+  ctx.font = getTextFont();
 }
 
 /** Draw a legend item at center with modern styling */
 function drawCenterLegendItem(ctx, x, y, color, label, count) {
+  // Responsive offset based on canvas size
+  const offset = Math.max(40, CANVAS_SIZE / 8);
+  const circleRadius = Math.max(4, CANVAS_SIZE / 80);
+  
   // Draw colored indicator circle
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(x - 60, y+3, 6, 0, 2 * Math.PI);
+  ctx.arc(x - offset, y + 3, circleRadius, 0, 2 * Math.PI);
   ctx.fill();
   
   // Add subtle glow effect
   ctx.shadowColor = color;
-  ctx.shadowBlur = 6;
+  ctx.shadowBlur = Math.max(3, CANVAS_SIZE / 80);
   ctx.beginPath();
-  ctx.arc(x - 60, y +3, 6, 0, 2 * Math.PI);
+  ctx.arc(x - offset, y + 3, circleRadius, 0, 2 * Math.PI);
   ctx.fill();
   
   // Reset shadow
@@ -1445,7 +1470,7 @@ function drawCenterLegendItem(ctx, x, y, color, label, count) {
   
   // Draw label and count
   ctx.fillStyle = TEXT_COLOR;
-  ctx.font = 'bold 16px Inter, system-ui, sans-serif'; // Increased from 14px to 16px
+  ctx.font = getLegendFont();
   ctx.fillText(label + ': ' + count, x, y + 4);
 }
 
